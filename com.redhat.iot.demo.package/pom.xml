@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.redhat.iot.demo</groupId>
+    <artifactId>com.redhat.iot.demo.package</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>deployment-package</packaging>
+
+    <properties>
+        <!-- <kura.basedir>${project.basedir}/..</kura.basedir> -->
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.redhat.iot.sensors</groupId>
+            <artifactId>com.redhat.iot.sensors.sensortag</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.organicelement</groupId>
+                <artifactId>deployment-package-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <version>1.0.0-SNAPSHOT</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
