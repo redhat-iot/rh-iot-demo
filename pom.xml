@@ -13,6 +13,7 @@
     </properties>
 
     <modules>
+    	  <module>com.redhat.iot.demo.camel</module>
         <module>com.redhat.iot.sensors.sensortag</module>
         <module>com.redhat.iot.demo.package</module>
     </modules>
