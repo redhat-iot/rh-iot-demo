@@ -14,7 +14,9 @@ package org.eclipse.kura.example.ble.tisensortag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,6 +90,8 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 	private boolean enableGyro     = false;
 	private boolean enableOpto     = false;
 	private boolean enableButtons  = false;
+//	private KuraPayload lastKuraPayload;
+	private Map<String, KuraPayload> payloads = new LinkedHashMap<>();
 
 	public void setCloudService(CloudService cloudService) {
 		m_cloudService = cloudService;
@@ -380,7 +384,10 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 		}
 		
 		s_logger.debug("Found " + m_tiSensorTagList.size() + " SensorTags");
-		
+
+		// Temporarily clear the map to prevent duplicates
+		payloads.clear();
+
 		// connect to TiSensorTags
 		for (TiSensorTag myTiSensorTag : m_tiSensorTagList) {
 			
@@ -550,7 +557,8 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				try {
 					// Publish only if there are metrics to be published!
 					if (!payload.metricNames().isEmpty()) {
-						m_cloudClient.publish(m_topic + "/" + myTiSensorTag.getBluetoothDevice().getAdress() , payload, 0, false);
+						payloads.put(myTiSensorTag.getBluetoothDevice().getAdress(), payload);
+//						m_cloudClient.publish(m_topic + "/" + myTiSensorTag.getBluetoothDevice().getAdress() , payload, 0, false);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -562,6 +570,14 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 
 		}
 		
+	}
+	
+	public Map<String, KuraPayload> getKuraPayloads() {
+		return payloads != null && payloads.size() > 0 ? payloads : null;
+	}
+
+	public String getFirstTopic() {
+		return (new ArrayList<String>(payloads.keySet())).get(0);
 	}
 
 	// --------------------------------------------------------------------

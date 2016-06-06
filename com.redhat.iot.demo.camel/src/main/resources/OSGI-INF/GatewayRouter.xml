@@ -9,4 +9,8 @@
 		<provide interface="io.rhiot.quickstarts.kura.camel.GatewayRouter"/>
 	</service>
 	<property name="service.pid" type="String" value="io.rhiot.quickstarts.kura.camel.GatewayRouter"/>
+	<reference bind="setBluetoothLe"
+						 cardinality="1..1"
+						 interface="org.eclipse.kura.example.ble.tisensortag.BluetoothLe"
+						 unbind="unsetBluetoothLe"/>
 </scr:component>
