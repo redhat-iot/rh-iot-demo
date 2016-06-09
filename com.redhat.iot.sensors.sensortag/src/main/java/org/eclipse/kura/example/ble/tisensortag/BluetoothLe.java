@@ -60,12 +60,15 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 	private String PROPERTY_GYRO     = "enableGyroscope";
 	private String PROPERTY_OPTO     = "enableLuxometer";
 	private String PROPERTY_BUTTONS  = "enableButtons";
+	private String PROPERTY_REDLED   = "switchOnRedLed";
+	private String PROPERTY_GREENLED = "switchOnGreenLed";
+	private String PROPERTY_BUZZER   = "switchOnBuzzer";
 	private String PROPERTY_TOPIC    = "publishTopic";
 	private String PROPERTY_INAME    = "iname";
 
 	private CloudService                m_cloudService;
 	private static CloudClient          m_cloudClient;
-	private List<TiSensorTag>           m_tiSensorTagList;
+	private Map<String, TiSensorTag> 	m_tiSensorTagMap;
 	private BluetoothService            m_bluetoothService;
 	private BluetoothAdapter            m_bluetoothAdapter;
 	private List<BluetoothGattService>  m_bluetoothGattServices;
@@ -90,6 +93,9 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 	private boolean enableGyro     = false;
 	private boolean enableOpto     = false;
 	private boolean enableButtons  = false;
+	private boolean enableRedLed   = false;
+	private boolean enableGreenLed = false;
+	private boolean enableBuzzer   = false;
 //	private KuraPayload lastKuraPayload;
 	private Map<String, KuraPayload> payloads = new LinkedHashMap<>();
 
@@ -119,7 +125,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 
 		updateProperties(properties);
 
-		m_tiSensorTagList = new ArrayList<TiSensorTag>();
+		m_tiSensorTagMap = new HashMap<>();
 
 		try {
 			m_cloudClient = m_cloudService.newCloudClient(APP_ID);
@@ -143,9 +149,9 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				// Get Bluetooth adapter and ensure it is enabled
 				m_bluetoothAdapter = m_bluetoothService.getBluetoothAdapter(iname);
 				if (m_bluetoothAdapter != null) {
-					s_logger.info("Bluetooth adapter interface => " + iname);
-					s_logger.info("Bluetooth adapter address => " + m_bluetoothAdapter.getAddress());
-					s_logger.info("Bluetooth adapter le enabled => " + m_bluetoothAdapter.isLeReady());
+					s_logger.debug("Bluetooth adapter interface => " + iname);
+					s_logger.debug("Bluetooth adapter address => " + m_bluetoothAdapter.getAddress());
+					s_logger.debug("Bluetooth adapter le enabled => " + m_bluetoothAdapter.isLeReady());
 
 					if (!m_bluetoothAdapter.isEnabled()) {
 						s_logger.info("Enabling bluetooth adapter...");
@@ -180,12 +186,12 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 		}
 
 		// disconnect SensorTags
-		for (TiSensorTag tiSensorTag : m_tiSensorTagList) {
+		for (TiSensorTag tiSensorTag : m_tiSensorTagMap.values()) {
 			if (tiSensorTag != null) {
 				tiSensorTag.disconnect();
 			}
 		}
-		m_tiSensorTagList.clear();
+		m_tiSensorTagMap.clear();
 
 		// cancel a current worker handle if one if active
 		if (m_handle != null) {
@@ -200,7 +206,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 		m_bluetoothAdapter = null;
 		
 		// Releasing the CloudApplicationClient
-		s_logger.info("Releasing CloudApplicationClient for {}...", APP_ID);
+		s_logger.debug("Releasing CloudApplicationClient for {}...", APP_ID);
 		if (m_cloudClient != null)
 			m_cloudClient.release();
 
@@ -221,12 +227,12 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 			}
 
 			// disconnect SensorTags
-			for (TiSensorTag tiSensorTag : m_tiSensorTagList) {
+			for (TiSensorTag tiSensorTag : m_tiSensorTagMap.values()) {
 				if (tiSensorTag != null) {
 					tiSensorTag.disconnect();
 				}
 			}
-			m_tiSensorTagList.clear();
+			m_tiSensorTagMap.clear();
 			
 			// cancel a current worker handle if one is active
 			if (m_handle != null) {
@@ -279,6 +285,12 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				enableOpto = (Boolean) properties.get(PROPERTY_OPTO);
 			if (properties.get(PROPERTY_BUTTONS) != null)
 				enableButtons = (Boolean) properties.get(PROPERTY_BUTTONS);
+			if (properties.get(PROPERTY_REDLED) != null)
+					enableRedLed = (Boolean) properties.get(PROPERTY_REDLED);
+			if (properties.get(PROPERTY_GREENLED) != null)
+					enableGreenLed = (Boolean) properties.get(PROPERTY_GREENLED);
+			if (properties.get(PROPERTY_BUZZER) != null)
+					enableBuzzer = (Boolean) properties.get(PROPERTY_BUZZER);
 			if (properties.get(PROPERTY_TOPIC) != null)
 				m_topic = (String) properties.get(PROPERTY_TOPIC);
 			if (properties.get(PROPERTY_INAME) != null)
@@ -330,27 +342,22 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 	}
 	
 	private void doServicesDiscovery(TiSensorTag tiSensorTag) {
-		s_logger.info("Starting services discovery...");
+		s_logger.debug("Starting services discovery...");
 		m_bluetoothGattServices = tiSensorTag.discoverServices();
 		for (BluetoothGattService bgs : m_bluetoothGattServices) {	
-			s_logger.info("Service UUID: " + bgs.getUuid()+"  :  "+bgs.getStartHandle()+"  :  "+bgs.getEndHandle());
+			s_logger.debug("Service UUID: " + bgs.getUuid()+"  :  "+bgs.getStartHandle()+"  :  "+bgs.getEndHandle());
 		}
 	}
 
 	private void doCharacteristicsDiscovery(TiSensorTag tiSensorTag) {
 		List<BluetoothGattCharacteristic> lbgc = tiSensorTag.getCharacteristics("0x0001", "0x0100"); 
 		for(BluetoothGattCharacteristic bgc:lbgc){
-			s_logger.info("Characteristics uuid : "+bgc.getUuid()+" : "+bgc.getHandle()+" : "+bgc.getValueHandle());
+			s_logger.debug("Characteristics uuid : "+bgc.getUuid()+" : "+bgc.getHandle()+" : "+bgc.getValueHandle());
 		}
 	}
 
 	private boolean searchSensorTagList(String address) {
-
-		for (TiSensorTag tiSensorTag : m_tiSensorTagList) {
-			if (tiSensorTag.getBluetoothDevice().getAdress().equals(address))
-				return true;
-		}
-		return false;
+		return m_tiSensorTagMap.containsKey(address);
 	}
 
 	// --------------------------------------------------------------------
@@ -373,23 +380,25 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 
 			if (bluetoothDevice.getName().contains("SensorTag")) {
 				s_logger.info("TI SensorTag " + bluetoothDevice.getAdress() + " found.");
-				if ((!enableWhitelist && !searchSensorTagList(bluetoothDevice.getAdress())) || (enableWhitelist && deviceWhitelist.contains(bluetoothDevice.getAdress().toUpperCase()) && !searchSensorTagList(bluetoothDevice.getAdress()))) {
+				if ((!enableWhitelist && !searchSensorTagList(bluetoothDevice.getAdress()))
+						|| (enableWhitelist && deviceWhitelist.contains(bluetoothDevice.getAdress().toUpperCase())
+							&& !searchSensorTagList(bluetoothDevice.getAdress()))) {
 					TiSensorTag tiSensorTag = new TiSensorTag(bluetoothDevice);
-					m_tiSensorTagList.add(tiSensorTag);
+					m_tiSensorTagMap.put(bluetoothDevice.getAdress(), tiSensorTag);
 				}
 			}
 			else { 
-				s_logger.info("Found device = " + bluetoothDevice.getAdress());
+				s_logger.debug("Found device = " + bluetoothDevice.getAdress());
 			}
 		}
 		
-		s_logger.debug("Found " + m_tiSensorTagList.size() + " SensorTags");
+		s_logger.debug("Found " + m_tiSensorTagMap.size() + " SensorTags");
 
-		// Temporarily clear the map to prevent duplicates
+		// Clear the map to prevent duplicates
 		payloads.clear();
 
 		// connect to TiSensorTags
-		for (TiSensorTag myTiSensorTag : m_tiSensorTagList) {
+		for (TiSensorTag myTiSensorTag : m_tiSensorTagMap.values()) {
 			
 			if (!myTiSensorTag.isConnected()) {
 				s_logger.info("Connecting to TiSensorTag...");
@@ -410,8 +419,8 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					payload.addMetric("Type", "CC2541");
 			
 				// Test
-				doServicesDiscovery(myTiSensorTag);
-				doCharacteristicsDiscovery(myTiSensorTag);
+//				doServicesDiscovery(myTiSensorTag);
+//				doCharacteristicsDiscovery(myTiSensorTag);
 				
 				myTiSensorTag.setFirmwareRevision(myTiSensorTag.firmwareRevision());
 				
@@ -424,7 +433,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					double[] temperatures = myTiSensorTag.readTemperature();
 					
-					s_logger.info("Ambient: " + temperatures[0] + " Target: " + temperatures[1]);
+					s_logger.debug("Ambient: " + temperatures[0] + " Target: " + temperatures[1]);
 					
 					payload.addMetric("Ambient", temperatures[0]);
 					payload.addMetric("Target", temperatures[1]);
@@ -445,7 +454,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					double[] acceleration = myTiSensorTag.readAcceleration();
 					
-					s_logger.info("Acc X: " + acceleration[0] + " Acc Y: " + acceleration[1] + " Acc Z: " + acceleration[2]);
+					s_logger.debug("Acc X: " + acceleration[0] + " Acc Y: " + acceleration[1] + " Acc Z: " + acceleration[2]);
 					
 					payload.addMetric("Acceleration X", acceleration[0]);
 					payload.addMetric("Acceleration Y", acceleration[1]);
@@ -461,7 +470,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					
 					float humidity = myTiSensorTag.readHumidity();
-					s_logger.info("Humidity: " + humidity);
+					s_logger.debug("Humidity: " + humidity);
 					
 					payload.addMetric("Humidity", humidity);
 				}	
@@ -480,7 +489,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					float[] magneticField = myTiSensorTag.readMagneticField();
 					
-					s_logger.info("Mag X: " + magneticField[0] + " Mag Y: " + magneticField[1] + " Mag Z: " + magneticField[2]);
+					s_logger.debug("Mag X: " + magneticField[0] + " Mag Y: " + magneticField[1] + " Mag Z: " + magneticField[2]);
 					
 					payload.addMetric("Magnetic X", magneticField[0]);
 					payload.addMetric("Magnetic Y", magneticField[1]);
@@ -507,7 +516,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					double pressure = myTiSensorTag.readPressure();
 					
-					s_logger.info("Pre : " + pressure);
+					s_logger.debug("Pre : " + pressure);
 					
 					payload.addMetric("Pressure", pressure);
 				}
@@ -527,7 +536,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					float[] gyroscope = myTiSensorTag.readGyroscope();
 					
-					s_logger.info("Gyro X: " + gyroscope[0] + " Gyro Y: " + gyroscope[1] + " Gyro Z: " + gyroscope[2]);
+					s_logger.debug("Gyro X: " + gyroscope[0] + " Gyro Y: " + gyroscope[1] + " Gyro Z: " + gyroscope[2]);
 					
 					payload.addMetric("Gyro X", gyroscope[0]);
 					payload.addMetric("Gyro Y", gyroscope[1]);
@@ -544,7 +553,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					}
 					
 					double light = myTiSensorTag.readLight();
-					s_logger.info("Light: " + light);
+					s_logger.debug("Light: " + light);
 					
 					payload.addMetric("Light", light);
 				}
@@ -553,7 +562,27 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 					// For buttons only enable notifications
 					myTiSensorTag.enableKeysNotification();
 				}
-				
+
+				if (enableRedLed) {
+					myTiSensorTag.switchOnRedLed();
+				} else {
+					myTiSensorTag.switchOffRedLed();
+				}
+
+				if (enableGreenLed) {
+					myTiSensorTag.switchOnGreenLed();
+				} else {
+					myTiSensorTag.switchOffGreenLed();
+				}
+
+				if (enableBuzzer) {
+					myTiSensorTag.switchOnBuzzer();
+				} else {
+					myTiSensorTag.switchOffBuzzer();
+				}
+
+				myTiSensorTag.enableIOService();
+
 				try {
 					// Publish only if there are metrics to be published!
 					if (!payload.metricNames().isEmpty()) {
@@ -576,8 +605,32 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 		return payloads != null && payloads.size() > 0 ? payloads : null;
 	}
 
-	public String getFirstTopic() {
-		return (new ArrayList<String>(payloads.keySet())).get(0);
+   public void clearKuraPayloads() {
+		payloads.clear();
+	}
+
+	public void switchOnRedLed(String deviceId) {
+		m_tiSensorTagMap.get(deviceId).switchOnRedLed();
+	}
+
+	public void switchOnGreenLed(String deviceId) {
+		m_tiSensorTagMap.get(deviceId).switchOnGreenLed();
+	}
+
+	public void switchOnBuzzer(String deviceId) {
+		m_tiSensorTagMap.get(deviceId).switchOnBuzzer();
+	}
+
+	public void switchOffRedLed(String deviceId) {
+		m_tiSensorTagMap.get(deviceId).switchOffRedLed();
+	}
+
+	public void switchOffGreenLed(String deviceId) {
+		m_tiSensorTagMap.get(deviceId).switchOffGreenLed();
+	}
+
+	public void switchOffBuzzer(String deviceId) {
+		m_tiSensorTagMap.get(deviceId).switchOffBuzzer();
 	}
 
 	// --------------------------------------------------------------------

@@ -137,7 +137,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	}
 	
 	public List<BluetoothGattCharacteristic> getCharacteristics(String startHandle, String endHandle) {
-		s_logger.info("List<BluetoothGattCharacteristic> getCharacteristics");
+		s_logger.debug("List<BluetoothGattCharacteristic> getCharacteristics");
 		return m_bluetoothGatt.getCharacteristics(startHandle, endHandle);
 	}
 
@@ -247,7 +247,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private double[] calculateTemperature(String value) {
 		
-		s_logger.info("Received temperature value: " + value);
+		s_logger.debug("Received temperature value: " + value);
 		
 		double[] temperatures = new double[2];
 
@@ -394,7 +394,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private double[] calculateAcceleration(String value) {
 		
-		s_logger.info("Received accelerometer value: " + value);
+		s_logger.debug("Received accelerometer value: " + value);
 		
 		double[] acceleration = new double[3];
 		byte[] valueByte = hexStringToByteArray(value.replace(" ", ""));
@@ -515,7 +515,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private float calculateHumidity(String value) {
 		
-		s_logger.info("Received barometer value: " + value);
+		s_logger.debug("Received barometer value: " + value);
 		
 		byte[] valueByte = hexStringToByteArray(value.replace(" ", ""));
 		
@@ -631,7 +631,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private float[] calculateMagneticField(String value) {
 		
-		s_logger.info("Received magnetometer value: " + value);
+		s_logger.debug("Received magnetometer value: " + value);
 		
 		float[] magneticField = new float[3];
 		
@@ -803,7 +803,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private double calculatePressure(String value) {
 
-		s_logger.info("Received pressure value: " + value);
+		s_logger.debug("Received pressure value: " + value);
 		
 		double p_a = 0.0;
 		byte[] valueByte = hexStringToByteArray(value.replace(" ", ""));
@@ -953,7 +953,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private float[] calculateGyroscope(String value) {
 		
-		s_logger.info("Received gyro value: " + value);
+		s_logger.debug("Received gyro value: " + value);
 		
 		float[] gyroscope = new float[3];
 		byte[] valueByte = hexStringToByteArray(value.replace(" ", ""));
@@ -992,7 +992,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 		if (CC2650)
 			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_OPTO_SENSOR_ENABLE_2650, "01");
 		else
-			s_logger.info("Not optical sensor on CC2541.");
+			s_logger.debug("Not optical sensor on CC2541.");
 			
 	}
 	
@@ -1004,7 +1004,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 		if (CC2650)
 			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_OPTO_SENSOR_ENABLE_2650, "00");
 		else
-			s_logger.info("Not optical sensor on CC2541.");
+			s_logger.debug("Not optical sensor on CC2541.");
 	}
 	
 	/*
@@ -1017,7 +1017,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 			if (CC2650)
 				light = calculateLight(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_OPTO_SENSOR_VALUE_2650));
 			else {
-				s_logger.info("Not optical sensor on CC2541.");
+				s_logger.debug("Not optical sensor on CC2541.");
 				light = 0.0;
 			}
 		} catch (KuraException e) {
@@ -1035,7 +1035,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 			if (CC2650)
 				light = calculateLight(m_bluetoothGatt.readCharacteristicValueByUuid(TiSensorTagGatt.UUID_OPTO_SENSOR_VALUE));
 			else {
-				s_logger.info("Not optical sensor on CC2541.");
+				s_logger.debug("Not optical sensor on CC2541.");
 				light = 0.0;
 			}
 		} catch (KuraException e) {
@@ -1052,7 +1052,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 		if (CC2650)
 			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_OPTO_SENSOR_NOTIFICATION_2650, "01:00");
 		else
-			s_logger.info("Not optical sensor on CC2541.");
+			s_logger.debug("Not optical sensor on CC2541.");
 	}
 	
 	/*
@@ -1063,7 +1063,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 		if (CC2650)
 			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_OPTO_SENSOR_NOTIFICATION_2650, "00:00");
 		else
-			s_logger.info("Not optical sensor on CC2541.");
+			s_logger.debug("Not optical sensor on CC2541.");
 	}
 	
 	/*
@@ -1078,7 +1078,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	 */
 	private double calculateLight(String value) {
 		
-		s_logger.info("Received luxometer value: " + value);
+		s_logger.debug("Received luxometer value: " + value);
 		
 		byte[] valueByte = hexStringToByteArray(value.replace(" ", ""));
 		int sfloat = shortUnsignedAtOffset(valueByte, 0);
@@ -1148,6 +1148,153 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 		else
 			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_KEYS_NOTIFICATION_2541, "00:00");
 	}
+
+
+// -------------------------------------------------------------------------------------------------------
+//
+//  IO Service
+//
+// -------------------------------------------------------------------------------------------------------
+/*
+ * Enable IO Service
+ */
+	public void enableIOService() {
+// Write "01" to enable IO Service
+		if (CC2650)
+			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_ENABLE_2650, "01");
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+
+	}
+
+	/*
+    * Disable IO Service
+    */
+	public void disableIOService() {
+		// Write "00" to disable IO Service
+		if (CC2650)
+			m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_ENABLE_2650, "00");
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
+
+	/*
+	 * Switch on red led
+	 */
+	public void switchOnRedLed() {
+// Write "01" to switch on red led
+		if (CC2650) {
+			int value;
+			String hexValue;
+			try {
+				value = Integer.parseInt(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650), 16) | 0x01;
+				hexValue = Integer.toHexString(value);
+				m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650, hexValue.length() < 2 ? "0" + hexValue : hexValue);
+			} catch (KuraException e) {
+				s_logger.error("Unable to read characteristic", e);
+			}
+		}
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
+
+	/*
+	 * Switch off red led
+	 */
+	public void switchOffRedLed() {
+// Write "00" to switch off red led
+		if (CC2650) {
+			int value;
+			String hexValue;
+			try {
+				value = Integer.parseInt(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650), 16) & 0xFE;
+				hexValue = Integer.toHexString(value);
+				m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650, hexValue.length() < 2 ? "0" + hexValue : hexValue);
+			} catch (KuraException e) {
+				s_logger.error("Unable to read characteristic", e);
+			}
+		}
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
+	/*
+    * Switch on green led
+    */
+	public void switchOnGreenLed() {
+		// Write "02" to switch on green led
+		if (CC2650) {
+			int value;
+			String hexValue;
+			try {
+				value = Integer.parseInt(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650), 16) | 0x02;
+				hexValue = Integer.toHexString(value);
+				m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650, hexValue.length() < 2 ? "0" + hexValue : hexValue);
+			} catch (KuraException e) {
+				s_logger.error("Unable to read characteristic", e);
+			}
+		} else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
+
+	/*
+ 	 * Switch off green led
+ 	 */
+	public void switchOffGreenLed() {
+// Write "00" to switch off green led
+		if (CC2650) {
+			int value;
+			String hexValue;
+			try {
+				value = Integer.parseInt(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650), 16) & 0xFD;
+				hexValue = Integer.toHexString(value);
+				m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650, hexValue.length() < 2 ? "0" + hexValue : hexValue);
+			} catch (KuraException e) {
+				s_logger.error("Unable to read characteristic", e);
+			}
+		}
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
+
+	/*
+	 * Switch on buzzer
+	 */
+	public void switchOnBuzzer() {
+// Write "04" to switch on buzzer
+		if (CC2650) {
+			int value;
+			String hexValue;
+			try {
+				value = Integer.parseInt(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650), 16) | 0x04;
+				hexValue = Integer.toHexString(value);
+				m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650, hexValue.length() < 2 ? "0" + hexValue : hexValue);
+			} catch (KuraException e) {
+				s_logger.error("Unable to read characteristic", e);
+			}
+		}
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
+
+	/*
+    * Switch off buzzer
+    */
+	public void switchOffBuzzer() {
+// Write "00" to switch off buzzer
+		if (CC2650) {
+			int value;
+			String hexValue;
+			try {
+				value = Integer.parseInt(m_bluetoothGatt.readCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650), 16) & 0xFB;
+				hexValue = Integer.toHexString(value);
+				m_bluetoothGatt.writeCharacteristicValue(TiSensorTagGatt.HANDLE_IO_SENSOR_VALUE_2650, hexValue.length() < 2 ? "0" + hexValue : hexValue);
+			} catch (KuraException e) {
+				s_logger.error("Unable to read characteristic", e);
+			}
+		}
+		else
+			s_logger.debug("Not IO Service on CC2541.");
+	}
 	
 	// ---------------------------------------------------------------------------------------------
 	//
@@ -1158,7 +1305,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	public void onDataReceived(String handle, String value) {
 		
 		if (handle.equals(TiSensorTagGatt.HANDLE_KEYS_STATUS_2541) || handle.equals(TiSensorTagGatt.HANDLE_KEYS_STATUS_2650)) {
-			s_logger.info("Received keys value: " + value);
+			s_logger.debug("Received keys value: " + value);
 			if (!value.equals("00"))
 				BluetoothLe.doPublishKeys(m_device.getAdress(), Integer.parseInt(value) );
 		}
