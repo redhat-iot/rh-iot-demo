@@ -31,7 +31,8 @@ public class GatewayRouter extends CamelRouter {
         cloudComponent.getCloudService();
         camelContext.addComponent("kura-cloud", cloudComponent);
 
-        from("timer://heartbeat?fixedRate=true&period=10000")
+      // Poll interval to check for pending sensor payloads and publish to Everyware Cloud
+      from("timer://heartbeat?fixedRate=true&period=10000")
            .onCompletion()
               .process(new Processor() {
                  @Override
@@ -62,6 +63,7 @@ public class GatewayRouter extends CamelRouter {
               .toD("kura-cloud:summit-demo/assets/${exchangeProperty.deviceId}")
            .end();
 
+      // Subscribe to topics on Everyware Cloud
       from("kura-cloud:summit-demo/assets/#").
               choice().
               when(simple("${body.metrics()[Light]} < 100"))
@@ -71,7 +73,6 @@ public class GatewayRouter extends CamelRouter {
                     String deviceAddress = getDeviceAddressFromTopic((String) exchange.getIn().getHeader("CamelKuraCloudService.topic"));
                     ble.switchOffRedLed(deviceAddress);
                     ble.switchOffGreenLed(deviceAddress);
-//                    ble.switchOffBuzzer(getDeviceAddressFromTopic((String)exchange.getIn().getHeader("CamelKuraCloudService.topic")));
                  }
                })
                .log("Low Light Event for ${header.CamelKuraCloudService.topic}")
@@ -83,11 +84,10 @@ public class GatewayRouter extends CamelRouter {
                     String deviceAddress = getDeviceAddressFromTopic((String) exchange.getIn().getHeader("CamelKuraCloudService.topic"));
                     ble.switchOnRedLed(deviceAddress);
                     ble.switchOnGreenLed(deviceAddress);
-//                    ble.switchOnBuzzer(getDeviceAddressFromTopic((String)exchange.getIn().getHeader("CamelKuraCloudService.topic")));
                  }
                })
                .log("Target Light Event for ${header.CamelKuraCloudService.topic}")
-               .to("log:TargetTemp")
+               .to("log:TargetLight")
               .otherwise()
                .process(new Processor() {
                   @Override
@@ -95,11 +95,10 @@ public class GatewayRouter extends CamelRouter {
                      String deviceAddress = getDeviceAddressFromTopic((String) exchange.getIn().getHeader("CamelKuraCloudService.topic"));
                      ble.switchOnRedLed(deviceAddress);
                      ble.switchOffGreenLed(deviceAddress);
-//                     ble.switchOffBuzzer(getDeviceAddressFromTopic((String)exchange.getIn().getHeader("CamelKuraCloudService.topic")));
                   }
                })
                .log("High Light Event for ${header.CamelKuraCloudService.topic}")
-               .to("log:HighTempWarning"); //?showAll=true&multiline=true");
+               .to("log:HighLightWarning"); //?showAll=true&multiline=true");
 
    }
 
