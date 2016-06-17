@@ -394,9 +394,6 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 		
 		s_logger.debug("Found " + m_tiSensorTagMap.size() + " SensorTags");
 
-		// Clear the map to prevent duplicates
-		payloads.clear();
-
 		// connect to TiSensorTags
 		for (TiSensorTag myTiSensorTag : m_tiSensorTagMap.values()) {
 			
