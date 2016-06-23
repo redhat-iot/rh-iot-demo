@@ -86,9 +86,9 @@ public class GatewayRouter extends CamelRouter {
                     ble.switchOffGreenLed(deviceAddress);
                  }
                })
-               .log("Low Light Event for ${exchangeProperty.deviceId}")
+//               .log("Low Light Event for ${exchangeProperty.deviceId}")
                .toD("kura-cloud:summit-demo/notification/${exchangeProperty.deviceId}")
-               .to("log:LowLightWarning") //?showAll=true&multiline=true")
+//               .to("log:LowLightWarning") //?showAll=true&multiline=true")
               .when(simple("${body.metrics()[Light]} > 150"))
                .process(new Processor() {
                  @Override
@@ -102,9 +102,9 @@ public class GatewayRouter extends CamelRouter {
                     ble.switchOffGreenLed(deviceAddress);
                  }
                })
-               .log("High Light Event for ${exchangeProperty.deviceId}")
+//               .log("High Light Event for ${exchangeProperty.deviceId}")
                .toD("kura-cloud:summit-demo/notification/${exchangeProperty.deviceId}")
-               .to("log:HighLightWarning?showAll=true&multiline=true")
+//               .to("log:HighLightWarning?showAll=true&multiline=true")
               .otherwise()
                .process(new Processor() {
                   @Override
@@ -118,9 +118,9 @@ public class GatewayRouter extends CamelRouter {
                      ble.switchOnGreenLed(deviceAddress);
                   }
                })
-               .log("Target Light Event for ${exchangeProperty.deviceId}")
-               .toD("kura-cloud:summit-demo/notification/${exchangeProperty.deviceId}")
-               .to("log:TargetLight");
+//               .log("Target Light Event for ${exchangeProperty.deviceId}")
+               .toD("kura-cloud:summit-demo/notification/${exchangeProperty.deviceId}");
+//               .to("log:TargetLight");
 
 /*
       from("kura-cloud:summit-demo/notification/#")
