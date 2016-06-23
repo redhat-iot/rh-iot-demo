@@ -422,11 +422,13 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				myTiSensorTag.setFirmwareRevision(myTiSensorTag.firmwareRevision());
 				
 				if (enableTemp) {
-					myTiSensorTag.enableTermometer();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+						myTiSensorTag.enableTermometer();
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 					double[] temperatures = myTiSensorTag.readTemperature();
 					
@@ -437,17 +439,18 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				}
 				
 				if (enableAcc) {
-					if (myTiSensorTag.getCC2650()) {
-						// Reduce period to 500ms (for a bug on SensorTag firmware :-)) and enable accelerometer with range 8g
-						myTiSensorTag.setAccelerometerPeriod("32");
-						myTiSensorTag.enableAccelerometer("3802");
-					}
-					else
-						myTiSensorTag.enableAccelerometer("01");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+						if (myTiSensorTag.getCC2650()) {
+							// Reduce period to 500ms (for a bug on SensorTag firmware :-)) and enable accelerometer with range 8g
+							myTiSensorTag.setAccelerometerPeriod("32");
+							myTiSensorTag.enableAccelerometer("3802");
+						} else
+							myTiSensorTag.enableAccelerometer("01");
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 					double[] acceleration = myTiSensorTag.readAcceleration();
 					
@@ -459,13 +462,14 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				}
 				
 				if (enableHum) {
-					myTiSensorTag.enableHygrometer();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+						myTiSensorTag.enableHygrometer();
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
-					
 					float humidity = myTiSensorTag.readHumidity();
 					s_logger.debug("Humidity: " + humidity);
 					
@@ -474,15 +478,17 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				
 				if (enableMag) {
 					// Reduce period to 500ms (for a bug on SensorTag firmware :-)) and enable magnetometer
-					myTiSensorTag.setMagnetometerPeriod("32");
-					if (myTiSensorTag.getCC2650())
-						myTiSensorTag.enableMagnetometer("4000");
-					else 
-						myTiSensorTag.enableMagnetometer("");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+						myTiSensorTag.setMagnetometerPeriod("32");
+						if (myTiSensorTag.getCC2650())
+							myTiSensorTag.enableMagnetometer("4000");
+						else
+							myTiSensorTag.enableMagnetometer("");
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 					float[] magneticField = myTiSensorTag.readMagneticField();
 					
@@ -495,21 +501,24 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				}
 				
 				if (enablePres) {
-					// Calibrate pressure sensor
-					myTiSensorTag.calibrateBarometer();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					myTiSensorTag.readCalibrationBarometer();
-					
-					// Read pressure
-					myTiSensorTag.enableBarometer();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+
+						// Calibrate pressure sensor
+						myTiSensorTag.calibrateBarometer();
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						myTiSensorTag.readCalibrationBarometer();
+
+						// Read pressure
+						myTiSensorTag.enableBarometer();
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 					double pressure = myTiSensorTag.readPressure();
 					
@@ -519,17 +528,18 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				}
 
 				if (enableGyro) {
-					if (myTiSensorTag.getCC2650()) {
-						// Reduce period to 500ms (for a bug on SensorTag firmware :-)) and enable gyroscope
-						myTiSensorTag.setGyroscopePeriod("32");
-						myTiSensorTag.enableGyroscope("0700");
-					}
-					else 
-						myTiSensorTag.enableGyroscope("07");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+						if (myTiSensorTag.getCC2650()) {
+							// Reduce period to 500ms (for a bug on SensorTag firmware :-)) and enable gyroscope
+							myTiSensorTag.setGyroscopePeriod("32");
+							myTiSensorTag.enableGyroscope("0700");
+						} else
+							myTiSensorTag.enableGyroscope("07");
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 					float[] gyroscope = myTiSensorTag.readGyroscope();
 					
@@ -542,13 +552,15 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				}
 				
 				if (enableOpto) {
-					myTiSensorTag.enableLuxometer();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!myTiSensorTag.isInitialized()) {
+						myTiSensorTag.enableLuxometer();
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
-					
+
 					double light = myTiSensorTag.readLight();
 					s_logger.debug("Light: " + light);
 					
@@ -562,15 +574,15 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 
 				if (enableRedLed) {
 					myTiSensorTag.switchOnRedLed();
-				} else {
+				}/* else {
 					myTiSensorTag.switchOffRedLed();
-				}
+				}*/
 
 				if (enableGreenLed) {
 					myTiSensorTag.switchOnGreenLed();
-				} else {
+				}/* else {
 					myTiSensorTag.switchOffGreenLed();
-				}
+				}*/
 
 				if (enableBuzzer) {
 					myTiSensorTag.switchOnBuzzer();
@@ -579,6 +591,8 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 				}
 
 				myTiSensorTag.enableIOService();
+
+				myTiSensorTag.setInitialized(true);
 
 				try {
 					// Publish only if there are metrics to be published!

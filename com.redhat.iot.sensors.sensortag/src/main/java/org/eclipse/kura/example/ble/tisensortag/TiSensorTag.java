@@ -33,6 +33,7 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	private BluetoothGatt   m_bluetoothGatt;
 	private BluetoothDevice m_device;
 	private boolean         m_connected;
+	private boolean         initialized;
 	private String          pressureCalibration;
 	private boolean         CC2650;
 	private String          firmwareRevision;
@@ -128,10 +129,18 @@ public class TiSensorTag implements BluetoothLeNotificationListener {
 	public void setFirmwareRevision(String firmwareRevision) {
 		this.firmwareRevision = firmwareRevision;
 	}
-	
+
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
+	}
+
 	/*
-	 * Discover services
-	 */
+       * Discover services
+       */
 	public List<BluetoothGattService> discoverServices() {
 		return m_bluetoothGatt.getServices();
 	}
