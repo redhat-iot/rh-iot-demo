@@ -6,7 +6,7 @@
     <groupId>com.redhat.iot.demo</groupId>
     <artifactId>com.redhat.iot.demo.package</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>deployment-package</packaging>
+    <packaging>pom</packaging>
 
     <properties>
         <!-- <kura.basedir>${project.basedir}/..</kura.basedir> -->
@@ -28,10 +28,31 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.organicelement</groupId>
-                <artifactId>deployment-package-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <version>1.0.0-SNAPSHOT</version>
+                <groupId>de.dentrassi.maven</groupId>
+                <artifactId>osgi-dp</artifactId>
+                <version>0.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <additionalDependencies>
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.sensors</groupId>
+                            <artifactId>com.redhat.iot.sensors.sensortag</artifactId>
+                            <version>1.0.0-SNAPSHOT</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.demo</groupId>
+                            <artifactId>com.redhat.iot.demo.camel</artifactId>
+                            <version>1.0.0-SNAPSHOT</version>
+                        </additionalDependency>
+                    </additionalDependencies>
+                </configuration>
             </plugin>
         </plugins>
     </build>
