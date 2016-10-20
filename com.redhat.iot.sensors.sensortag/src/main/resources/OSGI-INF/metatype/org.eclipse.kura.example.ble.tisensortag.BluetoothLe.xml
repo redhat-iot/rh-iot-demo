@@ -14,10 +14,10 @@
 -->
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="en_us">
     <OCD id="org.eclipse.kura.example.ble.tisensortag.BluetoothLe"
-         name="RHIOT Demo Sensors"
+         name="Demo - Sensors"
          description="Bluetooth Low Energy demo on a TI SensorTag.">
          
-        <Icon resource="OSGI-INF/SensorTag-CC2650.png" size="32"/>
+        <Icon resource="OSGI-INF/redhat-iot.png" size="32"/>
 
         <AD id="scan_enable"
             name="scan_enable"

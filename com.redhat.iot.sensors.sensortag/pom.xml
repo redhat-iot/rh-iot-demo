@@ -18,7 +18,7 @@
 
   <groupId>com.redhat.iot.sensors</groupId>
   <artifactId>com.redhat.iot.sensors.sensortag</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>org.eclipse.kura</groupId>
       <artifactId>org.eclipse.kura.api</artifactId>
-      <version>1.0.8-SNAPSHOT</version>
+      <version>1.0.10-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

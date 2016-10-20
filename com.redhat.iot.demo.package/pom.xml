@@ -5,13 +5,14 @@
 
     <groupId>com.redhat.iot.demo</groupId>
     <artifactId>com.redhat.iot.demo.package</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- <kura.basedir>${project.basedir}/..</kura.basedir> -->
     </properties>
 
+<!--
     <dependencies>
         <dependency>
             <groupId>com.redhat.iot.sensors</groupId>
@@ -24,13 +25,14 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+-->
 
     <build>
         <plugins>
             <plugin>
                 <groupId>de.dentrassi.maven</groupId>
                 <artifactId>osgi-dp</artifactId>
-                <version>0.2.1</version>
+                <version>0.3.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -44,12 +46,12 @@
                         <additionalDependency>
                             <groupId>com.redhat.iot.sensors</groupId>
                             <artifactId>com.redhat.iot.sensors.sensortag</artifactId>
-                            <version>1.0.0-SNAPSHOT</version>
+                            <version>1.0.1-SNAPSHOT</version>
                         </additionalDependency>
                         <additionalDependency>
                             <groupId>com.redhat.iot.demo</groupId>
                             <artifactId>com.redhat.iot.demo.camel</artifactId>
-                            <version>1.0.0-SNAPSHOT</version>
+                            <version>1.0.1-SNAPSHOT</version>
                         </additionalDependency>
                     </additionalDependencies>
                 </configuration>

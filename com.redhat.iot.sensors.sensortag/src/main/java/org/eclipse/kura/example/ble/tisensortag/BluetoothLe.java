@@ -46,7 +46,7 @@ public class BluetoothLe implements ConfigurableComponent, CloudClientListener, 
 
 	private static final Logger s_logger = LoggerFactory.getLogger(BluetoothLe.class);
 
-	private final String APP_ID      = "summit-demo";
+	private final String APP_ID      = "BLE-Sensors";
 	private String PROPERTY_WHITELIST     		= "deviceWhitelist";
 	private String PROPERTY_ENABLE_WHITELIST  = "enableWhitelist";
 	private String PROPERTY_SCAN     = "scan_enable";
