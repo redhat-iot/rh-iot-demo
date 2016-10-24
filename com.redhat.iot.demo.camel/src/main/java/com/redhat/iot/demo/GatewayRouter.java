@@ -180,7 +180,7 @@ public class GatewayRouter implements ConfigurableComponent {
                                 }
                             }
                         })
-                        .log("Publishing Metrics (Outer) =>")
+//                        .log("Publishing Metrics (Outer) =>")
                         .split(simple("${exchangeProperty.kurapayloads.keySet}"))
                         .parallelProcessing()
                         .process(new Processor() {
@@ -192,7 +192,7 @@ public class GatewayRouter implements ConfigurableComponent {
                                 exchange.getIn().setBody(map.get(deviceId));
                             }
                         })
-                        .log("Publishing Metrics (Inner) =>")
+//                        .log("Publishing Metrics (Inner) =>")
                         .wireTap("log:WireTap?showAll=true&multiline=true")
                         .wireTap("direct:checkSensors")
                         .toD("cloud:demo-kit/assets/${exchangeProperty.deviceId}")

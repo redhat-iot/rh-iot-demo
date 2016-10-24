@@ -5,28 +5,12 @@
 
     <groupId>com.redhat.iot.demo</groupId>
     <artifactId>com.redhat.iot.demo.package</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- <kura.basedir>${project.basedir}/..</kura.basedir> -->
     </properties>
-
-<!--
-    <dependencies>
-        <dependency>
-            <groupId>com.redhat.iot.sensors</groupId>
-            <artifactId>com.redhat.iot.sensors.sensortag</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.redhat.iot.demo</groupId>
-            <artifactId>com.redhat.iot.demo.camel</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
--->
-
     <build>
         <plugins>
             <plugin>
@@ -43,6 +27,21 @@
 
                 <configuration>
                     <additionalDependencies>
+                        <additionalDependency>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-csv</artifactId>
+                            <version>1.1</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>org.apache.camel</groupId>
+                            <artifactId>camel-csv</artifactId>
+                            <version>2.17.2</version>
+                        </additionalDependency>
+                        <additionalDependency>
+                            <groupId>com.redhat.iot.demo</groupId>
+                            <artifactId>com.redhat.iot.demo.simulator</artifactId>
+                            <version>1.0.2-SNAPSHOT</version>
+                        </additionalDependency>
                         <additionalDependency>
                             <groupId>com.redhat.iot.sensors</groupId>
                             <artifactId>com.redhat.iot.sensors.sensortag</artifactId>

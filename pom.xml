@@ -5,7 +5,7 @@
 
   <groupId>com.redhat.iot</groupId>
   <artifactId>demo-project</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -14,6 +14,7 @@
 
   <modules>
     <module>com.redhat.iot.demo.camel</module>
+    <module>com.redhat.iot.demo.simulator</module>
     <module>com.redhat.iot.sensors.sensortag</module>
     <module>com.redhat.iot.demo.package</module>
   </modules>
