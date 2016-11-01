@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" 
+    name="com.redhat.iot.demo.GatewayRouter"
+	configuration-policy="require" enabled="true" immediate="true"
+    activate="start" deactivate="stop" modified="updated">
+	<implementation class="com.redhat.iot.demo.GatewayRouter"/>
+	<service>
+		<provide interface="com.redhat.iot.demo.GatewayRouter"/>
+	</service>
+	<reference bind="setBluetoothLe"
+						 cardinality="1..1"
+						 interface="org.eclipse.kura.example.ble.tisensortag.BluetoothLe"
+						 unbind="unsetBluetoothLe"/>
+  <property name="service.pid" type="String" value="com.redhat.iot.demo.GatewayRouter"/>
+</scr:component>

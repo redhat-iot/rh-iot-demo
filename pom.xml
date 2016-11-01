@@ -17,5 +17,6 @@
     <module>com.redhat.iot.demo.simulator</module>
     <module>com.redhat.iot.sensors.sensortag</module>
     <module>com.redhat.iot.demo.package</module>
+    <module>com.redhat.iot.demo.common</module>
   </modules>
 </project>
