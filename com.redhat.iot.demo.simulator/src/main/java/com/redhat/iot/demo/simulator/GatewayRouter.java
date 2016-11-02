@@ -35,7 +35,6 @@ public class GatewayRouter implements ConfigurableComponent {
     private static String KURA = "cloud:";
     private static String TOPIC = "simulator-test/assets";
 
-
     /**
      * A RouterBuilder instance which has no routes
      */
@@ -139,7 +138,6 @@ public class GatewayRouter implements ConfigurableComponent {
         return fullFilter;
     }
 
-
     /**
      * Create a new RouteBuilder instance from the properties
      *
@@ -153,41 +151,41 @@ public class GatewayRouter implements ConfigurableComponent {
             return NO_ROUTES;
         }
 
-//        final int maxTemp = asInt(properties, "temperature.max", 20);
+        // final int maxTemp = asInt(properties, "temperature.max", 20);
 
         return new RouteBuilder() {
+
             @Override
             public void configure() throws Exception {
-                from(asString(properties, "filespec")).threads(12) //Poll for file and delete when finished
-                        .split().tokenize("\\n").streaming() //Process each line of the file separately, and stream to keep memory usage down
-                        .delay(1000) //Delay 1 second between processing lines
+                from(asString(properties, "filespec")).threads(12) // Poll for file and delete when finished
+                        .split().tokenize("\\n").streaming() // Process each line of the file separately, and stream to
+                                                             // keep memory usage down
+                        .delay(1000) // Delay 1 second between processing lines
                         .log("Sending ${header.CamelSplitIndex} of ${header.CamelSplitSize}")
-                        .unmarshal(new CsvDataFormat()
-                                .setIgnoreEmptyLines(true)
-                                .setUseMaps(true)
-                                .setCommentMarker('#')
-                                .setHeader(new String[]{"Ambient", "Light", "Humidity"}))
+                        .unmarshal(new CsvDataFormat().setIgnoreEmptyLines(true).setUseMaps(true).setCommentMarker('#')
+                                .setHeader(new String[] { "Ambient", "Light", "Humidity" }))
                         .process(new Processor() {
+
                             @Override
                             public void process(Exchange exchange) throws Exception {
                                 KuraPayload payload = new KuraPayload();
                                 List<Map> metrics = (List<Map>) exchange.getIn().getBody();
-                                Map<String, String> map =  metrics.get(0); //Each line of the file produces a map of name/value pairs, but we only get one line at a time due to the splitter above
+                                Map<String, String> map = metrics.get(0); // Each line of the file produces a map of
+                                                                          // name/value pairs, but we only get one line
+                                                                          // at a time due to the splitter above
                                 for (Map.Entry<String, String> entry : map.entrySet()) {
                                     payload.addMetric(entry.getKey(), Float.parseFloat(entry.getValue()));
                                 }
 
                                 exchange.getIn().setBody(payload);
                             }
-                        })
-                        .log("Sending CSV record")
+                        }).log("Sending CSV record")
                         .toD("cloud:" + asString(properties, "topic.prefix") + "/assets/${file:name.noext}");
 
-                //                        .to(KURA + TOPIC);
+                // .to(KURA + TOPIC);
             }
         };
     }
-
 
     private static String getDeviceAddressFromTopic(String in) {
         return in.substring(in.lastIndexOf("/") + 1);
